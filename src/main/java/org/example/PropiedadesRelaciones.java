@@ -8,7 +8,8 @@ import org.graphstream.ui.view.Viewer;
 public class PropiedadesRelaciones {
 
     // Verifica si la relación es sobre el conjunto dado
-    public static boolean esRelacionValida(Set<Integer> conjunto, Set<Par> relacion) {
+    public static boolean esRelacionValida(Set<Integer> conjunto, Set<Par> relacion)
+    {
         for (Par par : relacion) {
             if (!conjunto.contains(par.x) || !conjunto.contains(par.y)) {
                 return false;
@@ -74,6 +75,7 @@ public class PropiedadesRelaciones {
 
     // Verifica si la relación es transitiva (optimizada)
     public static boolean esTransitiva(Set<Par> relacion) {
+
         // Creamos un mapa para búsquedas rápidas
         Map<Integer, Set<Integer>> mapa = new HashMap<>();
         for (Par par : relacion) {
@@ -220,7 +222,7 @@ public class PropiedadesRelaciones {
         System.out.println("Antisimétrica: " + esAntisimetrica(relacionOrden));
         System.out.println("Transitiva: " + esTransitiva(relacionOrden));
 
-        visualizarHasseGraphStream(conjunto, relacion);
+        visualizarHasseGraphStream(conjunto, relacionOrden);
     }
 
     public static void visualizarHasseGraphStream(Set<Integer> conjunto, Set<Par> hasse) {
@@ -240,6 +242,9 @@ public class PropiedadesRelaciones {
             String edgeId = arista.x + "-" + arista.y;
             graph.addEdge(edgeId, String.valueOf(arista.x), String.valueOf(arista.y));
         }
+
+        graph.setAttribute("ui.quality");
+        graph.setAttribute("ui.antialias");
 
         Viewer viewer = graph.display();
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);

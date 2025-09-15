@@ -1,36 +1,11 @@
-import java.util.*;
+package org.example;
 
 import java.util.*;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 
 public class PropiedadesRelaciones {
-
-    // Clase Par para representar pares ordenados correctamente
-    static class Par {
-        int x, y;
-
-        Par(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Par par = (Par) o;
-            return x == par.x && y == par.y;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + "," + y + ")";
-        }
-    }
 
     // Verifica si la relación es sobre el conjunto dado
     public static boolean esRelacionValida(Set<Integer> conjunto, Set<Par> relacion) {
@@ -118,45 +93,161 @@ public class PropiedadesRelaciones {
         return true;
     }
 
-    public static void main(String[] args) {
+    public static void conjunto(){
+        Scanner in = new Scanner(System.in);
+
         // Conjunto
-        Set<Integer> conjunto = new HashSet<>(Arrays.asList(1, 2, 3));
-
-        // Relación usando la clase Par
+        Set<Integer> conjunto = new HashSet<>();
         Set<Par> relacion = new HashSet<>();
-        relacion.add(new Par(1, 1));
-        relacion.add(new Par(2, 2));
-        relacion.add(new Par(3, 3));
-        relacion.add(new Par(1, 2));
-        relacion.add(new Par(2, 1));
 
-        // Validamos que la relación sea sobre el conjunto
-        if (!esRelacionValida(conjunto, relacion)) {
-            System.out.println("Error: La relación contiene elementos fuera del conjunto");
+        // Ingreso dinámico del conjunto
+        System.out.println("=== INGRESO DEL CONJUNTO ===");
+        System.out.println("Ingrese los elementos del conjunto (ingrese 'fin' para terminar):");
+
+        while (true) {
+            System.out.print("Elemento (número entero): ");
+            String input = in.nextLine().trim();
+
+            if (input.equalsIgnoreCase("fin")) {
+
+                break;
+            }
+
+            try {
+                int elemento = Integer.parseInt(input);
+                if (conjunto.add(elemento)) {
+                    System.out.println("Elemento " + elemento + " agregado.");
+                } else {
+                    System.out.println("El elemento " + elemento + " ya existe en el conjunto.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Por favor, ingrese un número entero válido o 'fin' para terminar.");
+            }
+        }
+
+        if (conjunto.isEmpty()) {
+            System.out.println("El conjunto no puede estar vacío. Saliendo...");
+            in.close();
             return;
         }
 
-        // Resultados
-        System.out.println("Conjunto: " + conjunto);
-        System.out.println("Relación: " + relacion);
-        System.out.println("Reflexiva: " + esReflexiva(conjunto, relacion));
-        System.out.println("Irreflexiva: " + esIrreflexiva(conjunto, relacion));
-        System.out.println("Simétrica: " + esSimetrica(relacion));
-        System.out.println("Asimétrica: " + esAsimetrica(relacion));
-        System.out.println("Antisimétrica: " + esAntisimetrica(relacion));
-        System.out.println("Transitiva: " + esTransitiva(relacion));
+        System.out.println("\nConjunto final: " + conjunto);
 
-        // Ejemplo adicional: relación de orden
-        System.out.println("\n--- Relación de orden (≤) ---");
-        Set<Par> relacionOrden = new HashSet<>();
-        for (int i = 1; i <= 3; i++) {
-            for (int j = i; j <= 3; j++) {
-                relacionOrden.add(new Par(i, j));
+        // Ingreso dinámico de la relación
+        System.out.println("\n=== INGRESO DE LA RELACIÓN ===");
+        System.out.println("Ingrese los pares de la relación (formato: x,y).");
+        System.out.println("Ingrese 'fin' para terminar.\n");
+
+        while (true) {
+            System.out.print("Par (formato x,y): ");
+            String input = in.nextLine().trim();
+
+            if (input.equalsIgnoreCase("fin")) {
+                break;
+            }
+
+            try {
+                String[] partes = input.split(",");
+                if (partes.length != 2) {
+                    System.out.println("Formato incorrecto. Use: x,y");
+                    continue;
+                }
+
+                int x = Integer.parseInt(partes[0].trim());
+                int y = Integer.parseInt(partes[1].trim());
+
+                // Verificar que los elementos de la relacion estén en el conjunto
+                if (!conjunto.contains(x) || !conjunto.contains(y)) {
+                    System.out.println("Error: Los elementos deben estar en el conjunto.");
+                    continue;
+                }
+
+                Par nuevoPar = new Par(x, y);
+                if (relacion.add(nuevoPar)) {
+                    System.out.println("Par " + nuevoPar + " agregado.");
+                } else {
+                    System.out.println("El par " + nuevoPar + " ya existe en la relación.");
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Por favor, ingrese números válidos. Formato: x,y");
+            } catch (Exception e) {
+                System.out.println("Error en el formato. Use: x,y");
             }
         }
-        System.out.println("Relación de orden: " + relacionOrden);
+
+        in.close();
+
+
+        // Mostrar resultados
+        System.out.println("\n=== RESULTADOS ===");
+        System.out.println("Conjunto: " + conjunto);
+        System.out.println("Relación: " + relacion);
+
+        if (relacion.isEmpty()) {
+            System.out.println("\nLA RELACION ESTA VACIA:");
+            System.out.println("Reflexiva: " + esReflexiva(conjunto, relacion));
+            System.out.println("Irreflexiva: " + esIrreflexiva(conjunto, relacion));
+            System.out.println("Simétrica: " + esSimetrica(relacion));
+            System.out.println("Asimétrica: " + esAsimetrica(relacion));
+            System.out.println("Antisimétrica: " + esAntisimetrica(relacion));
+            System.out.println("Transitiva: " + esTransitiva(relacion));
+        } else {
+            System.out.println("\nPropiedades de la relación:");
+            System.out.println("Reflexiva: " + esReflexiva(conjunto, relacion));
+            System.out.println("Irreflexiva: " + esIrreflexiva(conjunto, relacion));
+            System.out.println("Simétrica: " + esSimetrica(relacion));
+            System.out.println("Asimétrica: " + esAsimetrica(relacion));
+            System.out.println("Antisimétrica: " + esAntisimetrica(relacion));
+            System.out.println("Transitiva: " + esTransitiva(relacion));
+        }
+
+        // Crear relación de orden para el conjunto
+        Set<Par> relacionOrden = new HashSet<>();
+        List<Integer> conjuntoOrdenado = new ArrayList<>(conjunto);
+        Collections.sort(conjuntoOrdenado);
+
+        for (int i = 0; i < conjuntoOrdenado.size(); i++) {
+            for (int j = i; j < conjuntoOrdenado.size(); j++) {
+                int x = conjuntoOrdenado.get(i);
+                int y = conjuntoOrdenado.get(j);
+                relacionOrden.add(new Par(x, y));
+            }
+        }
+
+        System.out.println("\nRelación de orden: " + relacionOrden);
         System.out.println("Reflexiva: " + esReflexiva(conjunto, relacionOrden));
         System.out.println("Antisimétrica: " + esAntisimetrica(relacionOrden));
         System.out.println("Transitiva: " + esTransitiva(relacionOrden));
+
+        visualizarHasseGraphStream(conjunto, relacion);
     }
+
+    public static void visualizarHasseGraphStream(Set<Integer> conjunto, Set<Par> hasse) {
+        System.setProperty("org.graphstream.ui", "swing");
+
+        Graph graph = new SingleGraph("Diagrama de Hasse");
+        graph.setAttribute("ui.stylesheet", "node { size: 20px; fill-color: #999; text-size: 14; }");
+
+        // Agregar nodos
+        for (Integer elemento : conjunto) {
+            org.graphstream.graph.Node node = graph.addNode(String.valueOf(elemento));
+            node.setAttribute("ui.label", elemento);
+        }
+
+        // Agregar aristas (sin flechas para Hasse)
+        for (Par arista : hasse) {
+            String edgeId = arista.x + "-" + arista.y;
+            graph.addEdge(edgeId, String.valueOf(arista.x), String.valueOf(arista.y));
+        }
+
+        Viewer viewer = graph.display();
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+    }
+
+    public static void main(String[] args) {
+        //Funcion conjunto
+        conjunto();
+    }
+
 }

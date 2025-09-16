@@ -117,7 +117,7 @@ public class PropiedadesRelaciones {
                 opc = in.nextInt();
                 in.nextLine();
             }catch (InputMismatchException e){
-                System.out.print("FATAL ERROR: Debe ingresar un número entero. ");
+                System.out.print("FATAL ERROR: Debe ingresar un número entero de la opcion del menu. ");
                 in.nextLine(); // Limpiar el buffer
                 continue; // Si estás en un loop, volver al inicio
             }
@@ -245,7 +245,10 @@ public class PropiedadesRelaciones {
                         System.out.println("Antisimétrica: " + esAntisimetrica(relacionOrden));
                         System.out.println("Transitiva: " + esTransitiva(relacionOrden) + "\n");
 
-                        visualizarHasseGraphStream(relacionOrden);
+
+                        Set<Par> diagramaHasse = obtenerDiagramaHasse(relacionOrden);
+
+                        visualizarHasseGraphStream(diagramaHasse);
                     }else{
                         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                         System.out.println("+No cumple las tres propiedades necesarias para realizar el diagrama de hasse.+");
@@ -276,9 +279,32 @@ public class PropiedadesRelaciones {
             elementos.add(par.y);
         }
 
-        // Ahora usar "elementos" para crear los nodos
         System.setProperty("org.graphstream.ui", "swing");
         Graph graph = new SingleGraph("Diagrama de Hasse");
+
+        // 🎨 ESTILOS PARA EL GRÁFICO
+        String stylesheet = """
+        node {
+            size: 30px;
+            fill-color: red;
+            text-size: 16;
+            text-color: white;
+            text-style: bold;
+            stroke-mode: plain;
+            stroke-color: black;
+            stroke-width: 2px;
+        }
+        edge {
+            fill-color: black;
+            size: 2px;
+        }
+        graph {
+            padding: 40px;
+        }
+        """;
+
+        graph.setAttribute("ui.stylesheet", stylesheet);
+        graph.setAttribute("ui.title", "Diagrama de Hasse");  // 🏷️ Título de ventana
 
         // Crear nodos
         for (Integer elemento : elementos) {
@@ -292,7 +318,40 @@ public class PropiedadesRelaciones {
             graph.addEdge(edgeId, String.valueOf(arista.x), String.valueOf(arista.y));
         }
 
-        graph.display();
+        // 🎨 MEJORAR VISUALIZACIÓN
+        graph.setAttribute("ui.quality");
+        graph.setAttribute("ui.antialias");
+
+        Viewer viewer = graph.display();
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+    }
+
+    public static Set<Par> obtenerDiagramaHasse(Set<Par> relacionCompleta) {
+        Set<Par> hasse = new HashSet<>();
+
+        // Copiar todos los pares no reflexivos
+        for (Par par : relacionCompleta) {
+            if (par.x != par.y) { // Eliminar pares reflexivos (lazos)
+                hasse.add(par);
+            }
+        }
+
+        // Eliminar relaciones transitivas (redundantes)
+        Set<Par> redundantes = new HashSet<>();
+        for (Par par1 : hasse) {
+            for (Par par2 : hasse) {
+                if (par1.y == par2.x && par1.x != par2.x && par1.y != par2.y) {
+                    // Buscar si existe par1.x -> par2.y directamente
+                    Par posibleRedundante = new Par(par1.x, par2.y);
+                    if (hasse.contains(posibleRedundante)) {
+                        redundantes.add(posibleRedundante);
+                    }
+                }
+            }
+        }
+
+        hasse.removeAll(redundantes);
+        return hasse;
     }
 
     public static void conjunto(){

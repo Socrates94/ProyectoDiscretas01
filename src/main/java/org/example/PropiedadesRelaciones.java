@@ -31,6 +31,16 @@ public class PropiedadesRelaciones {
         return true;
     }
 
+    //Muestra los pares reflexivos
+    public static void mostrarParesReflexivos(Set<Integer> conjunto, Set<Par> relacion) {
+        System.out.println("\nPares reflexivos requeridos:");
+        for (int elemento : conjunto) {
+            Par par = new Par(elemento, elemento);
+            String estado = relacion.contains(par) ? "✅" : "❌";
+            System.out.println(estado + " " + par);
+        }
+    }
+
     // Verifica si la relación es irreflexiva
     public static boolean esIrreflexiva(Set<Integer> conjunto, Set<Par> relacion) {
         for (int elemento : conjunto) {
@@ -39,6 +49,19 @@ public class PropiedadesRelaciones {
             }
         }
         return true;
+    }
+
+    //Muestra los pares irreflexivos
+    public static void mostrarParesIrreflexivos(Set<Integer> conjunto, Set<Par> relacion) {
+        System.out.println("\nPares irreflexivos verificados:");
+        for (int elemento : conjunto) {
+            Par par = new Par(elemento, elemento);
+            if (relacion.contains(par)) {
+                System.out.println("❌ Par reflexivo encontrado: " + par + " (debería no existir)");
+            } else {
+                System.out.println("✅ No existe par reflexivo: " + par);
+            }
+        }
     }
 
     // Verifica si la relación es simétrica
@@ -50,6 +73,19 @@ public class PropiedadesRelaciones {
             }
         }
         return true;
+    }
+
+    //Muestra los pares simetricos
+    public static void mostrarParesSimetricos(Set<Par> relacion) {
+        System.out.println("\nPares simétricos verificados:");
+        for (Par par : relacion) {
+            Par simetrico = new Par(par.y, par.x);
+            if (relacion.contains(simetrico)) {
+                System.out.println("✅ Par (" + par.x + "," + par.y + ") tiene su simétrico (" + simetrico.x + "," + simetrico.y + ")");
+            } else {
+                System.out.println("❌ Par (" + par.x + "," + par.y + ") NO tiene su simétrico (" + simetrico.x + "," + simetrico.y + ")");
+            }
+        }
     }
 
     // Verifica si la relación es asimétrica
@@ -64,6 +100,26 @@ public class PropiedadesRelaciones {
         return true;
     }
 
+    //Muestra los pares asimetricos de la relacion
+    public static void mostrarParesAsimetricos(Set<Par> relacion) {
+        System.out.println("\nPares asimétricos verificados:");
+        for (Par par : relacion) {
+            Par simetrico = new Par(par.y, par.x);
+
+            if (par.equals(simetrico)) {
+                // Es un par reflexivo (a,a) - permitido en asimétrica
+                System.out.println("✅ Par (" + par.x + "," + par.y + ") es reflexivo (permitido)");
+            } else if (relacion.contains(simetrico)) {
+                // Tiene simétrico pero no es reflexivo - PROHIBIDO
+                System.out.println("❌ Par (" + par.x + "," + par.y + ") tiene simétrico (" +
+                        simetrico.x + "," + simetrico.y + ") (NO permitido)");
+            } else {
+                // No tiene simétrico - PERMITIDO
+                System.out.println("✅ Par (" + par.x + "," + par.y + ") no tiene simétrico (permitido)");
+            }
+        }
+    }
+
     // Verifica si la relación es antisimétrica
     public static boolean esAntisimetrica(Set<Par> relacion) {
         for (Par par : relacion) {
@@ -74,6 +130,26 @@ public class PropiedadesRelaciones {
             }
         }
         return true;
+    }
+
+    //Muestra los pares antisimetricos de la relacion
+    public static void mostrarParesAntisimetricos(Set<Par> relacion) {
+        System.out.println("\nPares antisimétricos verificados:");
+        for (Par par : relacion) {
+            Par simetrico = new Par(par.y, par.x);
+
+            if (par.equals(simetrico)) {
+                // Es un par reflexivo (a,a) - PERMITIDO en antisimétrica
+                System.out.println("✅ Par (" + par.x + "," + par.y + ") es reflexivo (permitido)");
+            } else if (relacion.contains(simetrico)) {
+                // Tiene simétrico pero no es reflexivo - PROHIBIDO
+                System.out.println("❌ Par (" + par.x + "," + par.y + ") tiene simétrico (" +
+                        simetrico.x + "," + simetrico.y + ") (NO permitido)");
+            } else {
+                // No tiene simétrico - PERMITIDO
+                System.out.println("✅ Par (" + par.x + "," + par.y + ") no tiene simétrico (permitido)");
+            }
+        }
     }
 
     // Verifica si la relación es transitiva (optimizada)
@@ -97,6 +173,40 @@ public class PropiedadesRelaciones {
         }
         return true;
     }
+
+    //Muestra pares transitivos de la relacion
+    public static void mostrarParesTransitivos(Set<Par> relacion) {
+        System.out.println("\nPares transitivos verificados:");
+
+        // Crear mapa para búsquedas rápidas (igual que en el método original)
+        Map<Integer, Set<Integer>> mapa = new HashMap<>();
+        for (Par par : relacion) {
+            mapa.computeIfAbsent(par.x, k -> new HashSet<>()).add(par.y);
+        }
+
+        boolean esTransitiva = true;
+
+        for (Par par1 : relacion) {
+            Set<Integer> segundosElementos = mapa.get(par1.y);
+            if (segundosElementos != null) {
+                for (int z : segundosElementos) {
+                    // Verificar si existe (par1.x, z)
+                    if (!mapa.getOrDefault(par1.x, Collections.emptySet()).contains(z)) {
+                        System.out.println("❌ Falta par transitivo: (" + par1.x + "," + z + ")");
+                        System.out.println("   Porque existe (" + par1.x + "," + par1.y + ") y (" + par1.y + "," + z + ")");
+                        esTransitiva = false;
+                    } else {
+                        System.out.println("✅ Par transitivo presente: (" + par1.x + "," + z + ")");
+                    }
+                }
+            }
+        }
+
+        if (esTransitiva) {
+            System.out.println("✅ Todos los pares transitivos están presentes");
+        }
+    }
+
 
     public static void inputs(){
         Scanner in = new Scanner(System.in);
@@ -217,14 +327,30 @@ public class PropiedadesRelaciones {
                         System.out.println("Transitiva: " + esTransitiva(relacion));
                     } else {
                         System.out.println("\nPropiedades de la relación:");
+
                         System.out.println("Reflexiva: " + esReflexiva(conjunto, relacion));
-                        System.out.println("Irreflexiva: " + esIrreflexiva(conjunto, relacion));
-                        System.out.println("Simétrica: " + esSimetrica(relacion));
-                        System.out.println("Asimétrica: " + esAsimetrica(relacion));
-                        System.out.println("Antisimétrica: " + esAntisimetrica(relacion));
-                        System.out.println("Transitiva: " + esTransitiva(relacion));
+                        mostrarParesReflexivos(conjunto, relacion);
+
+                        System.out.println("\nIrreflexiva: " + esIrreflexiva(conjunto, relacion));
+                        mostrarParesIrreflexivos(conjunto, relacion);
+
+                        System.out.println("\nSimétrica: " + esSimetrica(relacion));
+                        mostrarParesSimetricos(relacion);
+
+                        System.out.println("\nAsimétrica: " + esAsimetrica(relacion));
+                        mostrarParesAsimetricos(relacion);
+
+                        System.out.println("\nAntisimétrica: " + esAntisimetrica(relacion));
+                        mostrarParesAntisimetricos(relacion);
+
+                        System.out.println("\nTransitiva: " + esTransitiva(relacion));
+                        mostrarParesTransitivos(relacion);
                     }
 
+                    //Relacion de equivalencia: reflexiva simetrica y transitiva.
+
+
+                    //Relacion de orden parcial
                     if(esReflexiva(conjunto,relacion) && esAntisimetrica(relacion) && esTransitiva(relacion)){
                         // Crear relación de orden pacial para el conjunto
                         Set<Par> relacionOrden = new HashSet<>();
@@ -239,7 +365,8 @@ public class PropiedadesRelaciones {
                             }
                         }
 
-                        System.out.println("\nRelacion de orden parcial. Cumple las propiedades, reflexiva, antisimetrica y transitiva.");
+                        System.out.println("\nRelacion de orden parcial(conjunto parcialmente ordenado).");
+                        System.out.println("Cumple las propiedades: reflexiva, antisimetrica y transitiva.");
                         System.out.println("Relación de orden: " + relacionOrden);
                         System.out.println("Reflexiva: " + esReflexiva(conjunto, relacionOrden));
                         System.out.println("Antisimétrica: " + esAntisimetrica(relacionOrden));
@@ -249,11 +376,31 @@ public class PropiedadesRelaciones {
                         Set<Par> diagramaHasse = obtenerDiagramaHasse(relacionOrden);
 
                         visualizarHasseGraphStream(diagramaHasse);
+
+                    }else if(esReflexiva(conjunto, relacion) && esSimetrica(relacion) && esTransitiva(relacion)){
+
+                        // Crear relación de equivalencia para el conjunto
+                        Set<Par> relacionEquivalencia = new HashSet<>();
+                        List<Integer> conjuntoEquivalente = new ArrayList<>(conjunto);
+                        Collections.sort(conjuntoEquivalente);
+
+                        for (int i = 0; i < conjuntoEquivalente.size(); i++) {
+                            for (int j = i; j < conjuntoEquivalente.size(); j++) {
+                                int x = conjuntoEquivalente.get(i);
+                                int y = conjuntoEquivalente.get(j);
+                                relacionEquivalencia.add(new Par(x, y));
+                            }
+                        }
+                        System.out.println("\nRelacion de equivalencia.");
+                        System.out.println("Cumple con las propiedades: reflexiva, simetrica y transitiva.");
+                        System.out.println("Reflexiva: " + esReflexiva(conjunto, relacionEquivalencia));
+                        System.out.println("Simetrica: " + esSimetrica(relacionEquivalencia));
+                        System.out.println("Transitiva: " + esTransitiva(relacionEquivalencia));
+
                     }else{
                         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                         System.out.println("+No cumple las tres propiedades necesarias para realizar el diagrama de hasse.+");
                         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-
                     }
 
                     conjunto.clear();

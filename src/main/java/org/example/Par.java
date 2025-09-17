@@ -12,6 +12,7 @@ public class Par {
         this.y = y;
     }
 
+    //Se necestia el metodo equals ya que necesario comparar los valores de los objetos Par
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -20,6 +21,7 @@ public class Par {
         return x == par.x && y == par.y;
     }
 
+    //Para acelerar la busqueda de los pares y no este iterando uno por uno hasta encontrar el par.
     @Override
     public int hashCode() {
         return Objects.hash(x, y);

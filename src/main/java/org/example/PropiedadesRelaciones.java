@@ -7,22 +7,22 @@ import org.graphstream.ui.view.Viewer;
 
 public class PropiedadesRelaciones {
 
-    // Verifica si la relación es sobre el conjunto dado
-    public static boolean esRelacionValida(Set<Integer> conjunto, Set<Par> relacion)
-    {
-        for (Par par : relacion) {
-
-            if (!conjunto.contains(par.x) || !conjunto.contains(par.y)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
+//    // Verifica si la relación es sobre el conjunto dado
+//    public static boolean esRelacionValida(Set<Integer> conjunto, Set<Par> relacion)
+//    {
+//        for (Par par : relacion) {
+//
+//            if (!conjunto.contains(par.x) || !conjunto.contains(par.y)) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
     // Verifica si la relación es reflexiva
     public static boolean esReflexiva(Set<Integer> conjunto, Set<Par> relacion) {
-
+        //itera el conjunto para instanciar un objeto Par como elemento iterado del conjunto y verifica si esta en la relacion
         for (int elemento : conjunto) {
             if (!relacion.contains(new Par(elemento, elemento))) {
                 return false;
@@ -33,6 +33,7 @@ public class PropiedadesRelaciones {
 
     //Muestra los pares reflexivos
     public static void mostrarParesReflexivos(Set<Integer> conjunto, Set<Par> relacion) {
+
         System.out.println("\nPares reflexivos requeridos:");
         for (int elemento : conjunto) {
             Par par = new Par(elemento, elemento);
@@ -43,13 +44,19 @@ public class PropiedadesRelaciones {
 
     // Verifica si la relación es irreflexiva
     public static boolean esIrreflexiva(Set<Integer> conjunto, Set<Par> relacion) {
+
         for (int elemento : conjunto) {
-            if (relacion.contains(new Par(elemento, elemento))) {
-                return false;
+            if (relacion.contains(new Par(elemento, elemento))) { //verifica si el par esta en la relacion
+                return false;// falla en el primer par reflexivo encontrado
             }
         }
         return true;
     }
+
+    // Verifica si la relación es irreflexiva simple
+//    public static boolean esIrreflexiva(Set<Integer> conjunto, Set<Par> relacion) {
+//        return !esReflexiva(conjunto, relacion); // ✅ Esto sí funciona
+//    }
 
     //Muestra los pares irreflexivos
     public static void mostrarParesIrreflexivos(Set<Integer> conjunto, Set<Par> relacion) {
@@ -67,9 +74,10 @@ public class PropiedadesRelaciones {
     // Verifica si la relación es simétrica
     public static boolean esSimetrica(Set<Par> relacion) {
         for (Par par : relacion) {
+            //se crea su par simetrico
             Par simetrico = new Par(par.y, par.x);
-            if (!relacion.contains(simetrico)) {
-                return false;
+            if (!relacion.contains(simetrico)) { //ve si este par simetrico esta en la relacion
+                return false;//falla en el primer simetrico faltante
             }
         }
         return true;
@@ -92,13 +100,18 @@ public class PropiedadesRelaciones {
     public static boolean esAsimetrica(Set<Par> relacion) {
         for (Par par : relacion) {
             Par simetrico = new Par(par.y, par.x);
-            // Si existe el par simétrico y no es el mismo elemento (diagonal)
-            if (relacion.contains(simetrico) && !par.equals(simetrico)) {
-                return false;
+            // Para asimetría: si existe CUALQUIER simétrico (incluidos reflexivos)
+            if (relacion.contains(simetrico)) {
+                return false; // ❌ No permite ningún simétrico
             }
         }
         return true;
     }
+
+    // Más simple aún:
+//    public static boolean esAsimetrica(Set<Par> relacion) {
+//        return !esSimetrica(relacion); // ❌ Nada de simetría
+//    }
 
     //Muestra los pares asimetricos de la relacion
     public static void mostrarParesAsimetricos(Set<Par> relacion) {
@@ -122,9 +135,11 @@ public class PropiedadesRelaciones {
 
     // Verifica si la relación es antisimétrica
     public static boolean esAntisimetrica(Set<Par> relacion) {
+
         for (Par par : relacion) {
             Par simetrico = new Par(par.y, par.x);
             // Si existe el simétrico y no es el mismo elemento, viola antisimetría
+            //antisimetrica permite los pares reflexivos !par.equals(simetrico)
             if (relacion.contains(simetrico) && !par.equals(simetrico)) {
                 return false;
             }
@@ -157,6 +172,12 @@ public class PropiedadesRelaciones {
 
         // Creamos un mapa para búsquedas rápidas
         Map<Integer, Set<Integer>> mapa = new HashMap<>();
+
+        //llenamos el map
+//        Busca par.x en el mapa
+//        Si existe → devuelve el valor (el Set existente)
+//        Si NO existe → ejecuta k -> new HashSet<>() (crea un nuevo Set)
+//        Agrega par.y al Set (nuevo o existente)
         for (Par par : relacion) {
             mapa.computeIfAbsent(par.x, k -> new HashSet<>()).add(par.y);
         }
@@ -478,7 +499,7 @@ public class PropiedadesRelaciones {
 
         // Copiar todos los pares no reflexivos
         for (Par par : relacionCompleta) {
-            if (par.x != par.y) { // Eliminar pares reflexivos (lazos)
+            if (par.x != par.y) { // Eliminar pares reflexivos (lazos) si par.x es diferente de par.y agrega
                 hasse.add(par);
             }
         }

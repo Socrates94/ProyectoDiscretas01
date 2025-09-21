@@ -369,7 +369,33 @@ public class PropiedadesRelaciones {
                     }
 
                     //Relacion de equivalencia: reflexiva simetrica y transitiva.
+                    if(esReflexiva(conjunto, relacion) && esSimetrica(relacion) && esTransitiva(relacion)){
 
+                        // Crear relación de equivalencia para el conjunto
+                        Set<Par> relacionEquivalencia = new HashSet<>();
+                        List<Integer> conjuntoEquivalente = new ArrayList<>(conjunto);
+                        Collections.sort(conjuntoEquivalente);
+
+                        for (int i = 0; i < conjuntoEquivalente.size(); i++) {
+                            for (int j = i; j < conjuntoEquivalente.size(); j++) {
+                                int x = conjuntoEquivalente.get(i);
+                                int y = conjuntoEquivalente.get(j);
+                                relacionEquivalencia.add(new Par(x, y));
+                            }
+                        }
+
+                        System.out.println("\nRelacion de equivalencia.");
+                        System.out.println("Cumple con las propiedades: reflexiva, simetrica y transitiva.");
+                        System.out.println("Reflexiva: " + esReflexiva(conjunto, relacionEquivalencia));
+                        System.out.println("Simetrica: " + esSimetrica(relacion));
+                        System.out.println("Transitiva: " + esTransitiva(relacionEquivalencia));
+
+                        visualizarGraphStream(relacionEquivalencia);
+
+                        Set<Set<Integer>> particion = obtenerParticion(conjunto, relacion);
+                        System.out.println("Partición: " + particion + "\n");
+
+                    }
 
                     //Relacion de orden parcial
                     if(esReflexiva(conjunto,relacion) && esAntisimetrica(relacion) && esTransitiva(relacion)){
@@ -396,27 +422,7 @@ public class PropiedadesRelaciones {
 
                         Set<Par> diagramaHasse = obtenerDiagramaHasse(relacionOrden);
 
-                        visualizarHasseGraphStream(diagramaHasse);
-
-                    }else if(esReflexiva(conjunto, relacion) && esSimetrica(relacion) && esTransitiva(relacion)){
-
-                        // Crear relación de equivalencia para el conjunto
-                        Set<Par> relacionEquivalencia = new HashSet<>();
-                        List<Integer> conjuntoEquivalente = new ArrayList<>(conjunto);
-                        Collections.sort(conjuntoEquivalente);
-
-                        for (int i = 0; i < conjuntoEquivalente.size(); i++) {
-                            for (int j = i; j < conjuntoEquivalente.size(); j++) {
-                                int x = conjuntoEquivalente.get(i);
-                                int y = conjuntoEquivalente.get(j);
-                                relacionEquivalencia.add(new Par(x, y));
-                            }
-                        }
-                        System.out.println("\nRelacion de equivalencia.");
-                        System.out.println("Cumple con las propiedades: reflexiva, simetrica y transitiva.");
-                        System.out.println("Reflexiva: " + esReflexiva(conjunto, relacionEquivalencia));
-                        System.out.println("Simetrica: " + esSimetrica(relacionEquivalencia));
-                        System.out.println("Transitiva: " + esTransitiva(relacionEquivalencia));
+                        visualizarGraphStream(diagramaHasse);
 
                     }else{
                         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -439,7 +445,7 @@ public class PropiedadesRelaciones {
         in.close();
     }
 
-    public static void visualizarHasseGraphStream(Set<Par> relacion) {
+    public static void visualizarGraphStream(Set<Par> relacion) {
         // Extraer todos los elementos únicos de la relación
         Set<Integer> elementos = new HashSet<>();
         for (Par par : relacion) {
@@ -492,6 +498,31 @@ public class PropiedadesRelaciones {
 
         Viewer viewer = graph.display();
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+    }
+
+    //metodos para las clases de equivalencia
+    public static Set<Set<Integer>> obtenerParticion(Set<Integer> conjunto, Set<Par> relacion) {
+        Set<Set<Integer>> particion = new HashSet<>();
+        System.out.println("\nClases de equivalencia");
+        for (int elemento : conjunto) {
+            Set<Integer> clase = obtenerClase(relacion, elemento);
+            System.out.println(elemento + ": " + clase);
+            particion.add(clase);
+        }
+        System.out.println();
+        return particion;
+    }
+
+    public static Set<Integer> obtenerClase(Set<Par> relacion, int elemento) {
+        Set<Integer> clase = new HashSet<>();
+
+        for (Par par : relacion) {
+            if (par.x == elemento) {
+                clase.add(par.y);
+                //System.out.println(par);
+            }
+        }
+        return clase;
     }
 
     public static Set<Par> obtenerDiagramaHasse(Set<Par> relacionCompleta) {

@@ -1,4 +1,4 @@
-package org.example;
+    package org.example;
 
 import java.util.*;
 import org.graphstream.graph.Graph;
@@ -390,6 +390,8 @@ public class PropiedadesRelaciones {
                         System.out.println("Simetrica: " + esSimetrica(relacion));
                         System.out.println("Transitiva: " + esTransitiva(relacionEquivalencia));
 
+                        mostrarMatriz(conjunto, relacion);
+
                         visualizarGraphStream(relacionEquivalencia);
 
                         Set<Set<Integer>> particion = obtenerParticion(conjunto, relacion);
@@ -525,6 +527,36 @@ public class PropiedadesRelaciones {
         return clase;
     }
 
+    public static void mostrarMatriz(Set<Integer> conjunto, Set<Par> relacion) {
+        System.out.println("\n=== MATRIZ DE EQUIVALENCIA ===");
+
+        // Convertir a lista ordenada para mostrar consistentemente
+        List<Integer> elementos = new ArrayList<>(conjunto);
+        Collections.sort(elementos);
+
+        // Encabezado de columnas
+        System.out.print("    ");
+        for (int col : elementos) {
+            System.out.print(col + " ");
+        }
+        System.out.println();
+
+        // Filas de la matriz
+        for (int fila : elementos) {
+            System.out.print(fila + " | ");
+            for (int col : elementos) {
+                // Verificar si el par (fila, col) está en la relación
+                if (relacion.contains(new Par(fila, col))) {
+                    System.out.print("1 ");
+                } else {
+                    System.out.print("0 ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    //metodo para generar el diagrama de hasse
     public static Set<Par> obtenerDiagramaHasse(Set<Par> relacionCompleta) {
         Set<Par> hasse = new HashSet<>();
 

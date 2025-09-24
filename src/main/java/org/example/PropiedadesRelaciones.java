@@ -422,7 +422,9 @@ public class PropiedadesRelaciones {
                         System.out.println("Transitiva: " + esTransitiva(relacionOrden) + "\n");
 
 
-                        Set<Par> diagramaHasse = obtenerDiagramaHasse(relacionOrden);
+                        Set<Par> diagramaHasse = obtenerDiagramaHasse(relacion);
+
+                        System.out.println("Es reticula: " + esReticula(conjunto, relacion));
 
                         visualizarGraphStream(diagramaHasse);
 
@@ -430,6 +432,8 @@ public class PropiedadesRelaciones {
                         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                         System.out.println("+No cumple las tres propiedades necesarias para realizar el diagrama de hasse.+");
                         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+
+                        visualizarRelacionGeneral(relacion);
                     }
 
                     conjunto.clear();
@@ -502,6 +506,84 @@ public class PropiedadesRelaciones {
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
     }
 
+    //Para mostrar el garfo de una relacion cuando no es de orden parcial ni de equivalencia.
+    public static void visualizarRelacionGeneral(Set<Par> relacion) {
+        // Extraer elementos únicos
+        Set<Integer> elementos = new HashSet<>();
+        for (Par par : relacion) {
+            elementos.add(par.x);
+            elementos.add(par.y);
+        }
+
+        System.setProperty("org.graphstream.ui", "swing");
+        Graph graph = new SingleGraph("Relación General");
+
+        // Estilos para diferenciar tipos de relaciones
+        String stylesheet = """
+        node {
+            size: 25px;
+            fill-color: #4682B4;
+            text-size: 14;
+            text-color: white;
+        }
+        edge {
+            fill-color: #FF6347;
+            size: 2px;
+        }
+        graph {
+            padding: 40px;
+        }
+        """;
+
+        graph.setAttribute("ui.stylesheet", stylesheet);
+
+        // Crear nodos
+        for (Integer elemento : elementos) {
+            org.graphstream.graph.Node node = graph.addNode(String.valueOf(elemento));
+            node.setAttribute("ui.label", elemento);
+        }
+
+        // Crear aristas (con flechas para dirección)
+        for (Par arista : relacion) {
+            String edgeId = arista.x + "-" + arista.y;
+            graph.addEdge(edgeId, String.valueOf(arista.x), String.valueOf(arista.y), true); // true = dirigida
+        }
+
+        //graph.display();
+
+        Viewer viewer = graph.display();
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+    }
+
+    //metodo para generar el diagrama de hasse
+    public static Set<Par> obtenerDiagramaHasse(Set<Par> relacionCompleta) {
+        Set<Par> hasse = new HashSet<>();
+
+        // Copiar todos los pares no reflexivos
+        for (Par par : relacionCompleta) {
+            if (par.x != par.y) { // Eliminar pares reflexivos (lazos) si par.x es diferente de par.y agrega
+                hasse.add(par);
+            }
+        }
+
+        // Eliminar relaciones transitivas (redundantes)
+        Set<Par> redundantes = new HashSet<>();
+        for (Par par1 : hasse) {
+            for (Par par2 : hasse) {
+                if (par1.y == par2.x && par1.x != par2.x && par1.y != par2.y) {
+                    // Buscar si existe par1.x -> par2.y directamente
+                    Par posibleRedundante = new Par(par1.x, par2.y);
+                    if (hasse.contains(posibleRedundante)) {
+                        redundantes.add(posibleRedundante);
+                    }
+                }
+            }
+        }
+
+        hasse.removeAll(redundantes);
+        return hasse;
+    }
+
     //metodos para las clases de equivalencia
     public static Set<Set<Integer>> obtenerParticion(Set<Integer> conjunto, Set<Par> relacion) {
         Set<Set<Integer>> particion = new HashSet<>();
@@ -556,33 +638,71 @@ public class PropiedadesRelaciones {
         }
     }
 
-    //metodo para generar el diagrama de hasse
-    public static Set<Par> obtenerDiagramaHasse(Set<Par> relacionCompleta) {
-        Set<Par> hasse = new HashSet<>();
 
-        // Copiar todos los pares no reflexivos
-        for (Par par : relacionCompleta) {
-            if (par.x != par.y) { // Eliminar pares reflexivos (lazos) si par.x es diferente de par.y agrega
-                hasse.add(par);
-            }
-        }
-
-        // Eliminar relaciones transitivas (redundantes)
-        Set<Par> redundantes = new HashSet<>();
-        for (Par par1 : hasse) {
-            for (Par par2 : hasse) {
-                if (par1.y == par2.x && par1.x != par2.x && par1.y != par2.y) {
-                    // Buscar si existe par1.x -> par2.y directamente
-                    Par posibleRedundante = new Par(par1.x, par2.y);
-                    if (hasse.contains(posibleRedundante)) {
-                        redundantes.add(posibleRedundante);
+    //metodos para saber si es reticula
+    public static boolean esReticula(Set<Integer> conjunto, Set<Par> relacion) {
+        for (int a : conjunto) {
+            for (int b : conjunto) {
+                if (a != b) {
+                    // Verificar si existe supremo e ínfimo para {a,b}
+                    if (!tieneSupremo(conjunto, relacion, a, b) ||
+                            !tieneInfimo(conjunto, relacion, a, b)) {
+                        return false;
                     }
                 }
             }
         }
+        return true;
+    }
 
-        hasse.removeAll(redundantes);
-        return hasse;
+    public static boolean tieneSupremo(Set<Integer> conjunto, Set<Par> relacion, int a, int b) {
+        Set<Integer> cotasSuperiores = new HashSet<>();
+
+        // Encontrar todas las cotas superiores de {a,b}
+        for (int elemento : conjunto) {
+            if (relacion.contains(new Par(a, elemento)) &&
+                    relacion.contains(new Par(b, elemento))) {
+                cotasSuperiores.add(elemento);
+            }
+        }
+
+        // Buscar la mínima cota superior (supremo)
+        for (int cota : cotasSuperiores) {
+            boolean esMinima = true;
+            for (int otraCota : cotasSuperiores) {
+                if (relacion.contains(new Par(otraCota, cota)) && otraCota != cota) {
+                    esMinima = false;
+                    break;
+                }
+            }
+            if (esMinima) return true; // Encontró supremo
+        }
+        return false;
+    }
+
+    public static boolean tieneInfimo(Set<Integer> conjunto, Set<Par> relacion, int a, int b) {
+        Set<Integer> cotasInferiores = new HashSet<>();
+
+        // Encontrar todas las cotas inferiores de {a,b}
+        for (int elemento : conjunto) {
+            if (relacion.contains(new Par(elemento, a)) &&
+                    relacion.contains(new Par(elemento, b))) {
+                cotasInferiores.add(elemento);
+            }
+        }
+
+        // Buscar la máxima cota inferior (ínfimo)
+        for (int cota : cotasInferiores) {
+            boolean esMaxima = true;
+            for (int otraCota : cotasInferiores) {
+                if (relacion.contains(new Par(cota, otraCota)) && cota != otraCota) {
+                    esMaxima = false;
+                    break;
+                }
+            }
+            if (esMaxima) return true; // Encontró ínfimo
+        }
+        return false;
     }
 
     public static void conjunto(){
